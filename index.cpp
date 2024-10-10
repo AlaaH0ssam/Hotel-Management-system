@@ -36,7 +36,7 @@ struct preferences
 };
 struct Room {
     int RoomID;
-    string RoomType;
+    RoomType roomtype;
     bool Availability[7][3] = { 1, 1, 1,1,1, 1,1, 1, 1,1, 1,1,1,1, 1,1, 1,1,1,1,1 };
     int Price;
     int RoomBookingCount = 0;
@@ -47,6 +47,21 @@ struct Room {
     int ratings[MAX_RATINGS];
     string userReviews[MAX_RATINGS];
 };
+struct RoomType {
+    string name;
+    int roomCount; // Total number of rooms of this type
+};
+
+// Array of room types with their counts
+RoomType roomTypes[] = {
+    {"standard", 20},
+    {"suite", 20},
+    {"deluxe", 20},
+    {"executive", 20},
+    {"family", 20}
+};
+
+const int NUMBER_OF_ROOM_TYPES = sizeof(roomTypes) / sizeof(roomTypes[0]);
 struct User {
     bool IsAdmin = 0;
     string UserName;
@@ -98,9 +113,9 @@ void CheckBooking_For_Admin(Room* hotelRooms);
 int main()
 {
     srand((unsigned)time(NULL));//Make random numbers for id generated only once;
-     RoomsHandle();
-     //write_data(hotel_rooms);
-    //read_data(hotel_rooms);
+    RoomsHandle();
+    //write_data(hotel_rooms);
+   //read_data(hotel_rooms);
     int UsersCount = 0, UserID = 0;
     bool AdminORUser = 0;
     User* Users = new User[Max_Users];
@@ -210,7 +225,7 @@ int main()
         cout << "Press 'Y' or 'y' if you want to do more operations\n";
         cin >> endORcontinue;
     } while (endORcontinue == 'y' || endORcontinue == 'Y');
-    
+
     write_data(hotel_rooms);
     WriteData(Users, UsersCount);
     if (Logout_Choise == 1) {
@@ -224,18 +239,19 @@ int main()
     return 0;
 }
 int Welcome() {
-    cout << "                                    Welcome in Gen_56 hotel                        " << endl;
-    cout << "1.Sign in\n2.Log in\n\nEnter your choice:\n";
-    int choise;
-    cin >> choise;
-    while (cin.fail() || choise < 1 || choise>2) {
+    system("cls");  // Clear the console
+    cout << "                                    Welcome to Gen_56 Hotel                        " << endl;
+    cout << "1. Sign in\n2. Log in\n\nEnter your choice:\n";
+
+    int choice;
+    cin >> choice;
+    while (cin.fail() || choice < 1 || choice > 2) {
         cin.clear();
         cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        cout << "Invalid choise , please entre a valid one\n";
-        cin >> choise;
+        cout << "Invalid choice, please enter a valid one.\n";
+        cin >> choice;
     }
-    return choise;
-    system("cls");
+    return choice;
 }
 void ReadData(User* Users, int& userCounter) {
     userCounter = 0;
@@ -337,7 +353,7 @@ bool ISDigits_IdORPhone(string& phoneORId) {
     }
     return 1;
 }
-bool Check_ID(User* Users, int& Userscount, int & ID) {
+bool Check_ID(User* Users, int& Userscount, int& ID) {
     for (int i = 0; i < Userscount; i++) {
         if (Users[i].UserID == ID) {
             return 0;
@@ -352,7 +368,7 @@ string astrik_Password() {
         if (ch == '\b') {
             if (!password.empty()) {
 
-                cout << "\b \b";
+                cout << "\b \b";//Erase '*' from console
                 password.pop_back();
             }
         }
@@ -418,10 +434,10 @@ bool Sign_In(User* Users, int& Usercount, User& info, int& Userid, bool& AdmORUs
         cout << "Error,Invalid input.\nPlease enter only numeric digits for the phone number.\n";
         cin >> info.Phone_number;
     }
-    /*while (info.Phone_number.size() != 11) {
+    while (info.Phone_number.size() != 11) {
         cout << "Invalid phone number,please try again\n";
         cin >> info.Phone_number;
-    }*/
+    }
     //Password
     cout << "Enter password : \n";
     info.Password = astrik_Password();
@@ -436,7 +452,7 @@ bool Sign_In(User* Users, int& Usercount, User& info, int& Userid, bool& AdmORUs
     cout << "You're now signed in!\n";
     cout << "Your id : " << info.UserID << "\n\n";
     return 1;
-    system("cls");
+
 }
 bool Log_In(User* Users, int& Userscount, int& Userid, bool& AdminORUser) {
     string UserName, Password;
@@ -477,8 +493,10 @@ int user_menu()
     cout << "Choose the numper of which process you want to do:" << endl;
     cout << "1.Book a room\n2.View your booking\n3.Modify or cancel existing bookings\n4.Rate a Room\n5.Exit\n";
     cin >> ans;
-    while (ans < 1 || ans>5)
+    while (ans < 1 || ans>5 || cin.fail())
     {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << "Invalid input ,please try again" << endl;
         cin >> ans;
     }
@@ -499,43 +517,43 @@ void RoomsHandle() {
 
         if ((i >= 0) && (i < 20))
         {
-            hotel_rooms[i].RoomType = "standard";
+            hotel_rooms[i].roomtype.name = "standard";
             hotel_rooms[i].Price = 1000;
             hotel_rooms[i].room_preferences.location = "Located in the back";
             hotel_rooms[i].room_preferences.bed_type = "Single";
             hotel_rooms[i].room_preferences.availability_smooking = "Non-smoking room";
             hotel_rooms[i].room_preferences.room_meeting = "Non-meeting room";
         }
-        else if ((i >= 20) && (i < 40))
+        else if ((i < 40))
         {
-            hotel_rooms[i].RoomType = "suite";
+            hotel_rooms[i].roomtype.name = "suite";
             hotel_rooms[i].Price = 2000;
             hotel_rooms[i].room_preferences.location = "Overlooking a swimming pool";
             hotel_rooms[i].room_preferences.bed_type = "Double";
             hotel_rooms[i].room_preferences.availability_smooking = "Non-smoking room";
             hotel_rooms[i].room_preferences.room_meeting = "Non-meeting room";
         }
-        else if ((i >= 40) && (i < 60))
+        else if ((i < 60))
         {
-            hotel_rooms[i].RoomType = "deluxe";
+            hotel_rooms[i].roomtype.name = "deluxe";
             hotel_rooms[i].Price = 3000;
             hotel_rooms[i].room_preferences.location = "With a city view";
             hotel_rooms[i].room_preferences.bed_type = "King Size";
             hotel_rooms[i].room_preferences.availability_smooking = "Smoking room";
             hotel_rooms[i].room_preferences.room_meeting = "Meeting room";
         }
-        else if ((i >= 60) && (i < 80))
+        else if ((i < 80))
         {
-            hotel_rooms[i].RoomType = "executive";
+            hotel_rooms[i].roomtype.name = "executive";
             hotel_rooms[i].Price = 4000;
             hotel_rooms[i].room_preferences.location = "Near the elevator";
             hotel_rooms[i].room_preferences.bed_type = "single";
             hotel_rooms[i].room_preferences.availability_smooking = "Smoking room";
             hotel_rooms[i].room_preferences.room_meeting = "Meeting room";
         }
-        else  if ((i >= 80) && (i < 100))
+        else  if ((i < 100))
         {
-            hotel_rooms[i].RoomType = "family";
+            hotel_rooms[i].roomtype.name = "family";
             hotel_rooms[i].Price = 5000;
             hotel_rooms[i].room_preferences.location = "Located in the front";
             hotel_rooms[i].room_preferences.bed_type = "King size";
@@ -601,15 +619,15 @@ Booking get_date()
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cin >> date.EndPeriod;
     }
-    /* if (date.StartDay.day == date.EndDay.day)
-     {
-         while (date.EndPeriod <= date.StartPeriod)
-         {
-             cout << "Invalid period ,please try again\n";
-             cout << "Check-in Period:\n"; cin >> date.StartPeriod;
-             cout << "Check-out Period:\n"; cin >> date.EndPeriod;
-         }
-     }*/
+    if (date.StartDay.day == date.EndDay.day)
+    {
+        while (date.EndPeriod <= date.StartPeriod)
+        {
+            cout << "Invalid period ,please try again\n";
+            cout << "Check-in Period:\n"; cin >> date.StartPeriod;
+            cout << "Check-out Period:\n"; cin >> date.EndPeriod;
+        }
+    }
     system("cls");
     return date;
 }
@@ -640,9 +658,10 @@ string check_availability(Booking Date)
         room_type = "executive";
     else
         room_type = "family";
+    bool foundRoom = false;
     // Check availability 
     for (int i = 0; i < Max_Rooms; i++) {
-        if (hotel_rooms[i].RoomType == room_type)
+        if (hotel_rooms[i].roomtype.name == room_type)
         {
             bool available = true;
             for (int day = Date.StartDay.day - 1; day <= Date.EndDay.day - 1; ++day)
@@ -666,7 +685,7 @@ string check_availability(Booking Date)
                 // Room is available
                 cout << "Room ID: " << hotel_rooms[i].RoomID << endl
                     << "Price: " << hotel_rooms[i].Price << endl
-                    << "Type: " << hotel_rooms[i].RoomType << endl
+                    << "Type: " << hotel_rooms[i].roomtype.name << endl
                     << "Room Location: " << hotel_rooms[i].room_preferences.location << endl
                     << "Type Of Bed: " << hotel_rooms[i].room_preferences.bed_type << endl
                     << "Other Preferences: " << hotel_rooms[i].room_preferences.availability_smooking << endl
@@ -674,6 +693,9 @@ string check_availability(Booking Date)
                     << "----------------------------------\n";
             }
         }
+    }
+    if (!foundRoom) {
+        cout << "No available rooms of type " << room_type << " for the selected dates.\n";
     }
     return room_type;
 }
@@ -686,7 +708,7 @@ void write_data(Room* hotel_rooms) {
     // Write room data to file
     for (int i = 0; i < Max_Rooms; ++i) {
         out << hotel_rooms[i].RoomID << " "
-            << hotel_rooms[i].RoomType << " "
+            << hotel_rooms[i].roomtype.name << " "
             << hotel_rooms[i].Price << " ";
         for (int day = 0; day < 7; ++day) {
             for (int period = 0; period < 3; ++period) {
@@ -726,7 +748,7 @@ void read_data(Room* hotel_rooms) {
 
         // Read room ID, type, and price
         ss >> hotel_rooms[room_index].RoomID
-            >> hotel_rooms[room_index].RoomType
+            >> hotel_rooms[room_index].roomtype.name
             >> hotel_rooms[room_index].Price;
 
         // Read availability array
@@ -756,170 +778,151 @@ void read_data(Room* hotel_rooms) {
     // Close the file
     in.close();
 }
+int getRoomStartID(int roomTypeIndex) {
+    int startID = 1; // Start with 1 for standard rooms
 
-void BookRoom(User* Users, Booking Date, int Userid)
-{
+    // Calculate the starting ID based on previous room types
+    for (int i = 0; i < roomTypeIndex; ++i) {
+        startID += roomTypes[i].roomCount; // Increment by the count of previous room types
+    }
+    return startID;
+}
+
+int getRoomEndID(int roomTypeIndex) {
+    return getRoomStartID(roomTypeIndex) + roomTypes[roomTypeIndex].roomCount - 1;
+}
+bool validateRoomID(const string& room_type, int RoomID) {
+    for (int i = 0; i < NUMBER_OF_ROOM_TYPES; ++i) {
+        if (roomTypes[i].name == room_type) {
+            int minID = getRoomStartID(i);
+            int maxID = getRoomEndID(i);
+            return RoomID >= minID && RoomID <= maxID; // Validate dynamically calculated range
+        }
+    }
+    return false;
+}
+void BookRoom(User* Users, Booking Date, int Userid) {
     string room_type = check_availability(Date);
     int RoomID;
-    cout << "Please,Enter ID acoording to the type of room:" << endl;
+
+    cout << "Please enter the Room ID according to the type of room:" << endl;
     cin >> RoomID;
-    system("cls");
-    if (room_type == "standard")
-    {
 
-        while (RoomID < 1 || RoomID>20)
-        {
-            cout << "Invalid ID ,please try again:";
-            cin >> RoomID;
-        }
-        system("cls");
-
+    // Validate Room ID dynamically
+    while (!validateRoomID(room_type, RoomID)) {
+        cout << "Invalid ID, please try again:" << endl;
+        cin >> RoomID;
     }
-    else if (room_type == "suite")
-    {
 
-        while (RoomID < 21 || RoomID>40)
-        {
-            cout << "Invalid ID ,please try again:";
-            cin >> RoomID;
-        }
-        system("cls");
-
-    }
-    else if (room_type == "deluxe") {
-
-        while (RoomID < 41 || RoomID>60) {
-            cout << "Invalid ID ,please try again:";
-            cin >> RoomID;
-        }
-        system("cls");
-    }
-    else if (room_type == "executive") {
-
-        while (RoomID < 61 || RoomID>80) {
-            cout << "Invalid ID ,please try again:";
-            cin >> RoomID;
-        }
-        system("cls");
-    }
-    else if (room_type == "family") {
-
-        while (RoomID < 81 || RoomID>100) {
-            cout << "Invalid ID ,please try again:";
-            cin >> RoomID;
-        }
-        system("cls");
-    }
     bool room_found = false;
-    for (int i = 0; i < Max_Rooms; i++)
-    {
-        if (RoomID == hotel_rooms[i].RoomID)
-        {
-            //checking if the room is availble for booking on the specified dates         
+
+    for (int i = 0; i < Max_Rooms; i++) {
+        if (RoomID == hotel_rooms[i].RoomID) {
             bool room_available = true;
-            for (int day = Date.StartDay.day - 1; day <= Date.EndDay.day - 1; day++)
-            {
-                for (int p = 0; p < 3; p++)
-                {
+
+            // Check availability
+            for (int day = Date.StartDay.day - 1; day <= Date.EndDay.day - 1; day++) {
+                for (int p = 0; p < 3; p++) {
                     if (!hotel_rooms[i].Availability[day][p]) {
-                        if ((day == Date.StartDay.day - 1) && (p < Date.StartPeriod - 1))
-                            continue;
-                        else if ((day == Date.EndDay.day - 1) && (p > Date.EndPeriod - 1))
-                            continue;
+                        if ((day == Date.StartDay.day - 1 && p < Date.StartPeriod - 1) ||
+                            (day == Date.EndDay.day - 1 && p > Date.EndPeriod - 1)) {
+                            continue; // Check-in/out period is valid
+                        }
                         room_available = false;
                         break;
                     }
                 }
-                if (!room_available) {
-                    break;
-                }
-            }if (room_available)
-            {
+                if (!room_available) break;
+            }
+
+            if (room_available) {
                 room_found = true;
-                //update availability status
-                for (int day = Date.StartDay.day - 1; day <= Date.EndDay.day - 1; day++)
-                {
-                    for (int p = 0; p < 3; p++)
-                    {
-                        if ((day == Date.StartDay.day - 1) && (p < Date.StartPeriod - 1))
-                            continue;
-                        else if ((day == Date.EndDay.day - 1) && (p > Date.EndPeriod - 1))
-                            continue;
-                        hotel_rooms[i].Availability[day][p] = false;
+
+                // Update availability status
+                for (int day = Date.StartDay.day - 1; day <= Date.EndDay.day - 1; day++) {
+                    for (int p = 0; p < 3; p++) {
+                        if ((day == Date.StartDay.day - 1 && p < Date.StartPeriod - 1) ||
+                            (day == Date.EndDay.day - 1 && p > Date.EndPeriod - 1)) {
+                            continue; // Skip valid periods
+                        }
+                        hotel_rooms[i].Availability[day][p] = false; // Mark room as booked
                     }
                 }
 
-                int BookingID = 0;
-                for (int i = 0; i < Max_Users; i++) {
-                    if (Userid == Users[i].UserID) {
-                        if (Users[i].UserBooking_counter == Max_Booking) {
+                // Update user bookings
+                for (int j = 0; j < Max_Users; j++) {
+                    int Booking_index = Users[j].UserBooking_counter;
+
+                    if (Userid == Users[j].UserID) {
+                        if (Users[j].UserBooking_counter == Max_Booking) {
+                            // Resize booking array
                             Max_Booking += 10;
                             Booking* NewBooking_ptr = new Booking[Max_Booking];
-                            for (int j = 0; j < Max_Booking; j++) {
-                                NewBooking_ptr[i] = Users[i].Booking_ptr[j];
+                            for (int k = 0; k < Users[j].UserBooking_counter; k++) {
+                                NewBooking_ptr[k] = Users[j].Booking_ptr[k];
                             }
-                            delete[]Users[i].Booking_ptr;
-                            Users[i].Booking_ptr = NewBooking_ptr;
-
-
+                            delete[] Users[j].Booking_ptr;
+                            Users[j].Booking_ptr = NewBooking_ptr;
                         }
-                        int Booking_index = Users[i].UserBooking_counter;
-                        Users[i].Booking_ptr[Booking_index].User_ID = Userid;
-                        Users[i].Booking_ptr[Booking_index].RoomID = RoomID;
-                        Users[i].Booking_ptr[Booking_index].Booking_ID = Userid+Users[i].UserBooking_counter;
-                        BookingID = Users[i].Booking_ptr[Booking_index].Booking_ID;// use this for booking id saved in Room booking array  
-                        Users[i].Booking_ptr[Booking_index].StartDay.day = Date.StartDay.day - 1;
-                        Users[i].Booking_ptr[Booking_index].EndDay.day = Date.EndDay.day - 1;
-                        Users[i].Booking_ptr[Booking_index].StartPeriod = Date.StartPeriod - 1;
-                        Users[i].Booking_ptr[Booking_index].EndPeriod = Date.EndPeriod - 1;
-                        ++Users[i].UserBooking_counter;
+
+                        Users[j].Booking_ptr[Booking_index].User_ID = Userid;
+                        Users[j].Booking_ptr[Booking_index].RoomID = RoomID;
+                        Users[j].Booking_ptr[Booking_index].Booking_ID = Userid + Users[j].UserBooking_counter;
+                        Users[j].Booking_ptr[Booking_index].StartDay.day = Date.StartDay.day - 1;
+                        Users[j].Booking_ptr[Booking_index].EndDay.day = Date.EndDay.day - 1;
+                        Users[j].Booking_ptr[Booking_index].StartPeriod = Date.StartPeriod - 1;
+                        Users[j].Booking_ptr[Booking_index].EndPeriod = Date.EndPeriod - 1;
+                        ++Users[j].UserBooking_counter;
                         break;
                     }
-                    else {
-                        continue;
+
+
+                    // Update room booking information
+                    for (int k = 0; k < Max_Rooms; k++) {
+                        if (RoomID == hotel_rooms[k].RoomID) {
+                            int RoomBooking_index = hotel_rooms[k].RoomBookingCount;
+                            hotel_rooms[k].Room_booking[RoomBooking_index].User_ID = Userid;
+                            hotel_rooms[k].Room_booking[RoomBooking_index].Booking_ID = Users[j].Booking_ptr[Booking_index].Booking_ID;
+                            hotel_rooms[k].Room_booking[RoomBooking_index].StartDay.day = Date.StartDay.day - 1;
+                            hotel_rooms[k].Room_booking[RoomBooking_index].EndDay.day = Date.EndDay.day - 1;
+                            hotel_rooms[k].Room_booking[RoomBooking_index].StartPeriod = Date.StartPeriod - 1;
+                            hotel_rooms[k].Room_booking[RoomBooking_index].EndPeriod = Date.EndPeriod - 1;
+                            ++hotel_rooms[k].RoomBookingCount;
+                            break;
+                        }
                     }
+
+                    cout << "Room booked successfully\n\n";
+                    return;
                 }
-                for (int k = 0; k < Max_Rooms; k++) {
-                    if (RoomID == hotel_rooms[k].RoomID) {
-                        int RoomBooking_index = hotel_rooms[k].RoomBookingCount;
-                        hotel_rooms[k].Room_booking[RoomBooking_index].User_ID = Userid;
-                        hotel_rooms[k].Room_booking[RoomBooking_index].Booking_ID = BookingID;
-                        hotel_rooms[k].Room_booking[RoomBooking_index].StartDay.day = Date.StartDay.day - 1;
-                        hotel_rooms[k].Room_booking[RoomBooking_index].EndDay.day = Date.EndDay.day - 1;
-                        hotel_rooms[k].Room_booking[RoomBooking_index].StartPeriod = Date.StartPeriod - 1;
-                        hotel_rooms[k].Room_booking[RoomBooking_index].EndPeriod = Date.EndPeriod - 1;
-                        ++hotel_rooms[k].RoomBookingCount;
-                        break;
-                    }
-                    else {
-                        continue;
-                    }
-                }
-                cout << "Room booked succefully\n\n";
             }
         }
-    }if (room_found == false) {
-        cout << "this room is not available now" << endl;
+    }
+
+    if (!room_found) {
+        cout << "This room is not available now" << endl;
     }
 }
 string GetDay(int day) {
     string weekdays[] = { "Saturday","Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
-    return weekdays[day];
+    return (day >= 0 && day < 7) ? weekdays[day] : "Invalid Day";
 }
 string GetPeriod(int per)
 {
     string periods[] = { "Morning", "Afternoon", "Night" };
-    return periods[per];
+    return (per >= 0 && per < 3) ? periods[per] : "Invalid Period";
 }
 void ViewBooking(User* current_user, int Userid) {
+    bool userFound = false;
     for (int i = 0; i < Max_Users; i++) {
         if (current_user[i].UserID == Userid) {
+            userFound = true; // User found
             if (current_user[i].UserBooking_counter == 0) {
                 cout << "No bookings found!" << endl;
                 return;
             }
+
             else {
-                // Check if the user has any bookings
 
                 cout << "----------Your Bookings----------\n\n";
                 // Iterate through user's booking array
@@ -938,6 +941,9 @@ void ViewBooking(User* current_user, int Userid) {
             break;
         }
     }
+    if (!userFound) {
+        cout << "User not found!" << endl; // Inform if user ID is not valid
+    }
 }
 int modify_menu()
 {
@@ -952,6 +958,8 @@ int modify_menu()
     while (cin.fail() || ans > 4 || ans < 1)
     {
         cout << "Invalid choice. Please, try again\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cin >> ans;
     }
     return ans;
@@ -1358,7 +1366,7 @@ void modify(User users[], int u_id)
                 new_booking[i] = users[u_index].Booking_ptr[i + 1];
 
             delete[] users[u_index].Booking_ptr;
-            
+
 
             users[u_index].Booking_ptr = new_booking;
             users[u_index].UserBooking_counter--;
@@ -1402,7 +1410,7 @@ void AddRoom(int& size, Room*& arr) {
             cout << "PLease enter a valid price.\n";
             cin >> newRoom.Price;
         }
-        cout << "Room type: "; cin >> newRoom.RoomType;
+        cout << "Room type: "; cin >> newRoom.roomtype.name;
         cin.ignore();
         cout << "Room location: ";
         getline(cin, newRoom.room_preferences.location);
@@ -1468,7 +1476,7 @@ void DisplayRoom(Room*& arr, int size) {
                 cout << "Room found!\n-----------\n";
                 cout << "Room informations : \n";
                 cout << "Room ID : " << arr[i].RoomID << "\n";
-                cout << "Room type : " << arr[i].RoomType << "\n";
+                cout << "Room type : " << arr[i].roomtype.name << "\n";
                 cout << "Room price : $" << arr[i].Price << "\n";
                 cout << "Room location: " << arr[i].room_preferences.location << "\n";
                 cout << "Room bed type: " << arr[i].room_preferences.bed_type << "\n";
@@ -1573,12 +1581,12 @@ void EditRoomInfo(Room*& arr) {
             }
             else if (ans == 2) {
                 cout << "Enter the new room type: ";
-                cin >> arr[index].RoomType;
+                cin >> arr[index].roomtype.name;
                 while (cin.fail()) {
                     cin.clear();
                     cin.ignore(numeric_limits<int>::max(), '\n');
                     cout << "PLease enter a valid room data.\n";
-                    cin >> arr[index].RoomType;
+                    cin >> arr[index].roomtype.name;
                 }
                 cout << "Done successfully.\n";
             }
@@ -1814,7 +1822,6 @@ void CheckBooking_For_Admin(Room* hotelRooms)
 
 }
 void RateRoom(Room* room, User* user) {
-
     cout << "Enter the room id: ";
     int roomID;
     cin >> roomID;
@@ -1826,60 +1833,33 @@ void RateRoom(Room* room, User* user) {
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         return;
     }
+
     bool alreadyRated = false;
-    // Check if the user has already rated this room
     for (int i = 0; i < user->UserBooking_counter; ++i) {
         if (user->RatedRooms[i] == roomID) {
-            cout << "You have already rated this room.\n";
-            cout << "Your previous rating: " << room[roomID].ratings[user->UserID] << " stars\n";
-            cout << "Do you want to update your rating? (y/n): ";
-            char choice;
-            cin >> choice;
-            if (choice == 'n' || choice == 'N') {
-                return;
-            }
-            else {
-                cout << "Enter your updated rating for the room (1 to 5 stars): ";
-                cin >> room->ratings[roomID];
-                if (cin.fail() || room[roomID].ratings[user->UserID] < 1 || room[roomID].ratings[user->UserID] > 5) {
-                    cout << "Invalid rating. Please enter a rating between 1 and 5.\n";
-                    cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    return;
-                }
-                cout << "Rating updated successfully.\n";
-                calculateavgrating(room, roomID, user);
-                return;
-            }
+            alreadyRated = true;
+            break;
         }
     }
-    int newRatingIndex = room->totalRatings;
 
+    int newRating;
+    cout << (alreadyRated ? "You have already rated this room. Enter your updated rating (1 to 5 stars): "
+        : "Enter your rating for the room (1 to 5 stars): ");
+    cin >> newRating;
+
+    // Validate rating
+    if (cin.fail() || newRating < 1 || newRating > 5) {
+        cout << "Invalid rating. Please enter a rating between 1 and 5.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+
+    room[roomID].ratings[user->UserID] = newRating;
     if (!alreadyRated) {
-        cout << "Enter your rating for the room (1 to 5 stars): ";
-        cin >> room[roomID].ratings[user->UserID];
-
-        if (cin.fail() || room[roomID].ratings[user->UserID] < 1 || room[roomID].ratings[user->UserID] > 5) {
-            cout << "Invalid rating. Please enter a rating between 1 and 5.\n";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return;
-        }
-
         room[roomID].totalRatings++;
-        calculateavgrating(room, roomID, user);
-        cout << "Thank you for rating the room.\n";
     }
-}
 
-void calculateavgrating(Room* room, int roomID, User* user) {
-    float sum = 0.0;
-    for (int j = 0; j < room->totalRatings; j++) {
-        sum += room->ratings[j];
-    }
-    room->averageRating[roomID] = sum / room->totalRatings;
-
-
-    // Add the room to the list of rated rooms for the user
-    user->RatedRooms[user->UserBooking_counter++] = roomID;
+    calculateavgrating(room, roomID, user);
+    cout << (alreadyRated ? "Rating updated successfully." : "Thank you for rating the room.") << endl;
 }
